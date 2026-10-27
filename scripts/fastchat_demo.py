@@ -1,11 +1,15 @@
-import openai
+from functools import cache
 
-openai.api_key = "EMPTY"
-openai.api_base = 'http://0.0.0.0:8000/v1'
+from openai import OpenAI
+
+@cache
+def get_client() -> OpenAI:
+    return OpenAI(api_key="EMPTY", base_url='http://0.0.0.0:8000/v1')
+
 
 query = 'show me the quick sort in Python.'
 
-completion = openai.ChatCompletion.create(
+completion = get_client().chat.completions.create(
   model="CodeLlama-7b-hf",
   messages=[
     {"role": "user", "content": query}

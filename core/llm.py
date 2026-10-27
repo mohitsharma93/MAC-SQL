@@ -2,6 +2,11 @@ import sys
 import json
 import time
 from core.api_config import *
+from functools import cache
+from typing import cast
+
+from openai import OpenAI
+from openai.types import CompletionUsage
 
 MAX_TRY = 5
 
@@ -29,26 +34,29 @@ def init_log_path(my_log_path):
     api_trace_json_path = os.path.join(dir_name, 'api_trace.json')
 
 
+@cache
+def _llama_client() -> OpenAI:
+    return OpenAI(api_key="EMPTY", base_url=OPENAI_API_BASE)
+
+
 def api_func(prompt:str):
     global MODEL_NAME
     print(f"\nUse OpenAI model: {MODEL_NAME}\n")
     if 'Llama' in MODEL_NAME:
-        openai.api_version = None
-        openai.api_type = "open_ai"
-        openai.api_key = "EMPTY"
-        response = openai.ChatCompletion.create(
+        response = _llama_client().chat.completions.create(
             model=MODEL_NAME,
             messages=[{"role": "user", "content": prompt}]
         )
     else:
-        response = openai.ChatCompletion.create(
-            engine=MODEL_NAME,
+        response = get_client().chat.completions.create(
+            model=MODEL_NAME,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.1
         )
-    text = response['choices'][0]['message']['content'].strip()
-    prompt_token = response['usage']['prompt_tokens']
-    response_token = response['usage']['completion_tokens']
+    text = cast(str, response.choices[0].message.content).strip()
+    usage = cast(CompletionUsage, response.usage)
+    prompt_token = usage.prompt_tokens
+    response_token = usage.completion_tokens
     return text, prompt_token, response_token
 
 

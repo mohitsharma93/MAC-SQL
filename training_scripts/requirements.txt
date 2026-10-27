@@ -13,7 +13,7 @@ h5py
 numpy
 rouge_score
 fire
-openai==0.28.1
+openai>=3.0,<4.0
 # transformers>=4.35.2
 # accelerate>=0.22.0
 sentencepiece
