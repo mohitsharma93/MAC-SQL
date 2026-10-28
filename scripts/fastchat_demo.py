@@ -1,11 +1,10 @@
-import openai
+from openai import OpenAI
 
-openai.api_key = "EMPTY"
-openai.api_base = 'http://0.0.0.0:8000/v1'
+client = OpenAI(api_key="EMPTY", base_url='http://0.0.0.0:8000/v1')
 
 query = 'show me the quick sort in Python.'
 
-completion = openai.ChatCompletion.create(
+completion = client.chat.completions.create(
   model="CodeLlama-7b-hf",
   messages=[
     {"role": "user", "content": query}
